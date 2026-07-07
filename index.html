@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Nguyễn Vũ Bách — Portfolio</title>
+  <meta name="description" content="Nguyễn Vũ Bách — Fullstack & ML/DL engineer. Selected works, awards and contact.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232563ff'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- background -->
+  <div id="grid"></div>
+  <div id="glow"></div>
+  <div id="vignette"></div>
+
+  <!-- custom cursor -->
+  <div id="cursor"><span class="ring"></span><span class="dot"></span></div>
+
+  <!-- progress rail -->
+  <div id="rail"><span class="fill"></span></div>
+
+  <!-- top chrome -->
+  <header id="topbar" class="chrome">
+    <button id="menubtn" data-hover>
+      <span class="mring"></span>
+      <span class="mcore"><span class="lbl">menu</span><span class="d"></span></span>
+    </button>
+    <div id="viewtoggle">
+      <button data-view="spiral" data-i18n="view_spiral">spiral</button>
+      <span class="sep"></span>
+      <button data-view="list" class="active" data-i18n="view_list">list</button>
+    </div>
+    <a id="logo" data-hover title="Back to top">
+      <span class="orb"></span><span class="face">☺</span>
+    </a>
+  </header>
+
+  <!-- stage -->
+  <main id="stage">
+    <section id="list"><div id="list-track"></div></section>
+    <section id="spiral"><div id="spiral-inner"></div></section>
+    <div id="preview"></div>
+    <div id="label"></div>
+  </main>
+
+  <!-- bottom chrome -->
+  <footer id="botbar" class="chrome">
+    <div id="marquee"></div>
+    <div id="botcenter"><span data-i18n="scroll">scroll to explore</span><span class="ar">↓</span></div>
+    <div id="botright">
+      <div id="langtoggle">
+        <button data-lang="en" class="active">EN</button><span class="bar">/</span><button data-lang="vi">VI</button>
+      </div>
+      <button id="sound" data-hover>
+        <span class="eq"><i></i><i></i><i></i><i></i></span><span>sound</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- menu overlay -->
+  <div id="menu"></div>
+
+  <!-- scroll length -->
+  <div id="spacer"></div>
+
+  <!-- loader -->
+  <div id="loader">
+    <div class="nm"><span>N</span><span>V</span><span>B</span></div>
+    <div class="num" style="position:absolute;bottom:34px;right:34px;">000</div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/vendor/gsap.min.js"></script>
+  <script src="js/vendor/lenis.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
