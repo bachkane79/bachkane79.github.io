@@ -67,7 +67,10 @@ body.hovering #cursor .ring{width:64px;height:64px;background:rgba(255,255,255,.
 
 /* ---------- chrome: top bar ---------- */
 .chrome{position:fixed;z-index:100;left:0;right:0;padding:26px 34px;
-  display:flex;align-items:center;justify-content:space-between}
+  display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+/* only the actual controls catch clicks — the empty bar is click-through so the
+   thumbnail's "visit" link underneath stays clickable */
+#logo,#menubtn,#viewtoggle button,#langtoggle button,#sound{pointer-events:auto}
 #topbar{top:0}
 #botbar{bottom:0}
 .chrome .mono{font-family:var(--mono);font-size:12px;letter-spacing:.04em}
@@ -223,7 +226,7 @@ body.menu-open #menubtn .mring{opacity:.6}
   width:var(--w);aspect-ratio:16/11;
   margin-left:calc(var(--w) / -2);
   margin-top:calc(var(--w) * 0.6875 / -2);
-  border-radius:12px;overflow:hidden;will-change:transform,opacity;
+  border-radius:12px;overflow:hidden;will-change:transform,opacity;pointer-events:none;
   box-shadow:0 30px 80px rgba(0,0,0,.5);transform-style:preserve-3d;backface-visibility:hidden}
 .spiral-card img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .spiral-card .ph{width:100%;height:100%;display:grid;place-items:center;
@@ -274,16 +277,27 @@ body.menu-open #menubtn .mring{opacity:.6}
 .menu-inner{min-height:100%;padding:clamp(150px,21vh,238px) clamp(20px,5vw,64px) 90px;
   max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(56px,8vh,96px)}
 
-/* zig-zag floating nav — alternating left / right, stacked tight (no vertical gaps) */
-.menu-nav{display:flex;flex-direction:column;gap:0}
+/* zig-zag nav — two columns, each side stacked flush (no vertical gaps) */
+.menu-nav{display:flex;justify-content:center;align-items:flex-start;gap:clamp(18px,4vw,72px)}
+.mn-col{display:flex;flex-direction:column;gap:0}
+.mn-left{align-items:flex-end}
+.mn-right{align-items:flex-start;margin-top:clamp(38px,7vh,86px)}
 .menu-nav a{position:relative;display:flex;align-items:baseline;gap:clamp(12px,1.6vw,24px);
   width:fit-content;max-width:100%;
-  padding:0 clamp(16px,2.2vw,30px);border-radius:26px;
-  font-size:clamp(34px,6.8vw,92px);font-weight:600;letter-spacing:-.03em;line-height:.9;
+  padding:0 clamp(14px,1.8vw,26px);border-radius:26px;
+  font-size:clamp(30px,6.4vw,88px);font-weight:600;letter-spacing:-.03em;line-height:.92;
   color:var(--dim2);
-  transition:color .4s var(--ease),background .5s var(--ease),transform .55s var(--ease),box-shadow .55s var(--ease)}
-.menu-nav a:nth-child(odd){align-self:flex-start}
-.menu-nav a:nth-child(even){align-self:flex-end}
+  transition:color .4s var(--ease),transform .55s var(--ease)}
+/* hover fill + border that FADES OUT toward the black side of the gradient */
+.menu-nav a::before,.menu-nav a::after{content:"";position:absolute;inset:-3px -14px;
+  border-radius:22px;opacity:0;pointer-events:none;transition:opacity .5s var(--ease)}
+.menu-nav a::before{background:linear-gradient(90deg,rgba(255,77,151,.18),rgba(255,77,151,.03) 55%,transparent 78%)}
+.menu-nav a::after{padding:1px;
+  background:linear-gradient(90deg,rgba(255,77,151,.6),rgba(255,77,151,.14) 48%,transparent 76%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+          mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+.menu-nav a:hover::before,.menu-nav a:hover::after{opacity:1}
 .menu-nav a .mn-num{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:.06em;
   color:var(--pink);opacity:.55;align-self:flex-start;margin-top:.55em;transition:opacity .4s}
 .menu-nav a .mn-txt{position:relative}
@@ -292,11 +306,9 @@ body.menu-open #menubtn .mring{opacity:.6}
   transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
 .menu-nav a .mn-arrow{margin-left:auto;align-self:center;font-size:.42em;color:var(--pink);
   opacity:0;transform:translateX(-18px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
-.menu-nav a:hover{color:#fff;transform:translateX(clamp(10px,1.6vw,26px)) translateY(-2px);
-  background:linear-gradient(90deg,rgba(255,77,151,.16),rgba(255,77,151,.02) 60%,transparent);
-  box-shadow:0 26px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,77,151,.14) inset}
-.menu-nav a:nth-child(even):hover{transform:translateX(calc(-1 * clamp(10px,1.6vw,26px))) translateY(-2px);
-  background:linear-gradient(270deg,rgba(255,77,151,.16),rgba(255,77,151,.02) 60%,transparent)}
+.menu-nav a:hover{color:#fff}
+.mn-left a:hover{transform:translateX(calc(-1 * clamp(8px,1.4vw,20px))) translateY(-2px)}
+.mn-right a:hover{transform:translateX(clamp(8px,1.4vw,20px)) translateY(-2px)}
 .menu-nav a:hover .mn-num{opacity:1}
 .menu-nav a:hover .mn-txt::after{transform:scaleX(1)}
 .menu-nav a:hover .mn-arrow{opacity:1;transform:translateX(0)}

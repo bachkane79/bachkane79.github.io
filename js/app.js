@@ -163,7 +163,6 @@
         `translate3d(${x}px,${y}px,${z}px) rotateY(${-a * 57.3}deg) rotateZ(${d * 3.5}deg) scale(${sc})`;
       c.style.opacity = op;
       c.style.zIndex = Math.round(1000 - ad * 12);
-      c.style.pointerEvents = ad < 0.5 ? "auto" : "none";
     });
   }
 
@@ -287,14 +286,17 @@
       ["about", "#m-about"], ["awards", "#m-awards"],
       ["skills", "#m-skills"], ["education", "#m-education"], ["contact", "#m-contact"],
     ];
-    const navHTML = nav.map(([k], i) => {
+    const navA = nav.map(([k], i) => {
       const isWorks = k === "works";
       return `<a data-hover href="${isWorks ? "#" : "#m-" + k}"${isWorks ? " data-close" : ""} data-key="${k}">
         <span class="mn-num">0${i + 1}</span>
         <span class="mn-txt">${t(D.ui[k])}</span>
         <span class="mn-arrow">${isWorks ? "↺" : "↗"}</span>
       </a>`;
-    }).join("");
+    });
+    const navHTML =
+      `<div class="mn-col mn-left">${navA.filter((_, i) => i % 2 === 0).join("")}</div>` +
+      `<div class="mn-col mn-right">${navA.filter((_, i) => i % 2 === 1).join("")}</div>`;
 
     menu.innerHTML = `
       <button class="menu-close" data-hover data-close aria-label="Close menu"></button>
@@ -352,7 +354,8 @@
     menuOpen = true; menu.classList.add("open"); document.body.classList.add("menu-open");
     gsap.to(menu, { clipPath: "inset(0% 0 0% 0)", duration: .8, ease: "expo.inOut" });
     gsap.fromTo(".menu-nav a", { yPercent: 120, opacity: 0 },
-      { yPercent: 0, opacity: 1, stagger: .05, duration: .7, ease: "power3.out", delay: .25 });
+      { yPercent: 0, opacity: 1, stagger: .05, duration: .7, ease: "power3.out", delay: .25,
+        clearProps: "transform" });
     gsap.fromTo(".msec", { y: 40, opacity: 0 },
       { y: 0, opacity: 1, stagger: .07, duration: .7, ease: "power3.out", delay: .35 });
     $("#menubtn .lbl").textContent = t(D.ui.close);
@@ -421,13 +424,8 @@
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // spiral card click → visit
-  spiralInner.addEventListener("click", (e) => {
-    const c = e.target.closest(".spiral-card");
-    if (!c) return;
-    const p = P[cards.indexOf(c)];
-    if (p && p.url) window.open(p.url, "_blank", "noopener");
-  });
+  // Note: thumbnails/cards are NOT clickable — only the "visit" URL link opens the site.
+  // (Hover detection is rect-based, so cards don't need pointer-events.)
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && menuOpen) closeMenu();
