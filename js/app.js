@@ -10,7 +10,7 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
 
-  const state = { lang: "en", view: "list", pos: 0, active: -1, sound: false };
+  const state = { lang: "en", view: "spiral", pos: 0, active: -1, sound: false };
 
   /* ---------- text helper ---------- */
   const t = (o) => (o && (o[state.lang] ?? o.en)) || "";
@@ -67,7 +67,7 @@
       `<p class="pg-desc">${t(p.desc)}</p>` +
       `<div class="pg-stack">${p.stack.map((s) => `<span>${s}</span>`).join("")}</div>`;
   }
-  let pfx = 0, pfy = 0, pw = 320, ph = 300;   // follow position + measured size
+  let pfx = 0, pfy = 0, pw = 320, ph = 300, shownIdx = -1;   // follow pos + size + which project is shown
   function passageTargetX(w) { return (cx + 26 + w > innerWidth - 16) ? cx - w - 26 : cx + 26; }
   function showPassage(i) {
     populatePassage(i);
@@ -77,13 +77,10 @@
     pfy = clamp(cy - ph / 2, 16, innerHeight - ph - 16);
     passage.style.left = pfx + "px"; passage.style.top = pfy + "px";
   }
-  function hidePassage() { passage.classList.remove("show"); }
-  preview.addEventListener("mouseenter", () => { if (state.view === "list") showPassage(state.active); });
-  preview.addEventListener("mouseleave", hidePassage);
-  cards.forEach((c, i) => {
-    c.addEventListener("mouseenter", () => showPassage(i));
-    c.addEventListener("mouseleave", hidePassage);
-  });
+  function hidePassage() { passage.classList.remove("show"); shownIdx = -1; }
+  // hover detection is done per-frame by rect hit-testing (see frame loop) — robust across
+  // the whole thumbnail and the 3D-transformed spiral card, unlike mouseenter/leave.
+  const inRect = (r) => r && cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
 
   /* ---------- marquee circular text ---------- */
   $("#marquee").innerHTML = `
@@ -100,8 +97,8 @@
   function renderLabel(i) {
     const p = P[i];
     const visit = p.url
-      ? `<a class="visit pill" data-hover href="${p.url}" target="_blank" rel="noopener">
-           ${p.urlLabel} <span class="d"></span></a>`
+      ? `<a class="visit" data-hover href="${p.url}" target="_blank" rel="noopener">
+           <span class="vtxt">${p.urlLabel}</span><span class="varr">↗</span></a>`
       : "";
     label.innerHTML = `
       <div class="cat">${t(p.category)}</div>
@@ -127,12 +124,13 @@
   /* ============================================================
      RENDER LOOP TARGETS
      ============================================================ */
-  let itemH = 80;
+  let itemH = 80, pvRect = null;
   function measure() {
     itemH = items[0] ? items[0].offsetHeight : 80;
     listTrack.style.position = "absolute";
     listTrack.style.left = "50%";
     listTrack.style.top = "0";
+    pvRect = preview.getBoundingClientRect();
   }
 
   function renderList(pos) {
@@ -210,11 +208,25 @@
     ring.style.transform = `translate(${ringX}px,${ringY}px)`;
     dot.style.transform = `translate(${cx}px,${cy}px)`;
 
+    // ---- hover detection over the whole thumbnail (rect hit-test, not enter/leave) ----
+    let hoverIdx = -1;
+    if (state.view === "list") {
+      if (preview.classList.contains("show") && inRect(pvRect)) hoverIdx = state.active;
+    } else {
+      const c = cards[state.active];
+      if (c && inRect(c.getBoundingClientRect())) hoverIdx = state.active;
+    }
+    if (hoverIdx >= 0) {
+      if (hoverIdx !== shownIdx) { showPassage(hoverIdx); shownIdx = hoverIdx; }
+    } else if (shownIdx !== -1) {
+      hidePassage();
+    }
+
     // passage follows the cursor (to the side, vertically centered)
-    if (passage.classList.contains("show")) {
+    if (shownIdx >= 0) {
       const tx = passageTargetX(pw);
       const ty = clamp(cy - ph / 2, 16, innerHeight - ph - 16);
-      pfx = lerp(pfx, tx, 0.22); pfy = lerp(pfy, ty, 0.22);
+      pfx = lerp(pfx, tx, 0.32); pfy = lerp(pfy, ty, 0.32);
       passage.style.left = pfx + "px"; passage.style.top = pfy + "px";
     }
 
@@ -248,7 +260,7 @@
      CURSOR
      ============================================================ */
   const cursor = $("#cursor"), dot = $(".dot", cursor), ring = $(".ring", cursor);
-  let cx = innerWidth / 2, cy = innerHeight / 2, ringX = cx, ringY = cy, mx = 0, my = 0;
+  let cx = -1000, cy = -1000, ringX = cx, ringY = cy, mx = 0, my = 0;
   window.addEventListener("mousemove", (e) => {
     cx = e.clientX; cy = e.clientY;
     mx = (e.clientX / innerWidth - 0.5) * 2;
@@ -327,7 +339,7 @@
             <a data-hover href="mailto:${D.profile.email}">${D.profile.email}</a>
           </div>
           <div class="contact-row">
-            <a data-hover href="${D.profile.github}" target="_blank" rel="noopener">${D.profile.githubLabel}</a>
+            <a class="ext" data-hover href="${D.profile.github}" target="_blank" rel="noopener">${D.profile.githubLabel} <span class="varr">↗</span></a>
             <a data-hover href="tel:${D.profile.phone.replace(/\s/g, "")}">${D.profile.phone}</a>
             <span>${t(D.profile.location)}</span>
           </div>
@@ -431,12 +443,19 @@
     measure();
     applyLang();
     setActive(0);
-    renderList(0);
-    label.classList.add("listmode");
-    // intro reveal
-    gsap.fromTo(items, { yPercent: 60, opacity: 0 },
-      { yPercent: 0, opacity: 1, stagger: .04, duration: .9, ease: "power3.out", delay: .1,
-        onComplete: () => items.forEach((li) => (li.style.opacity = "")) });
+    if (state.view === "spiral") {
+      gsap.set(listEl, { opacity: 0 });
+      gsap.set(spiralEl, { pointerEvents: "auto" });
+      label.classList.add("spiralmode");
+      renderSpiral(0);
+      gsap.fromTo(spiralEl, { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power2.out", delay: .1 });
+    } else {
+      renderList(0);
+      label.classList.add("listmode");
+      gsap.fromTo(items, { yPercent: 60, opacity: 0 },
+        { yPercent: 0, opacity: 1, stagger: .04, duration: .9, ease: "power3.out", delay: .1,
+          onComplete: () => items.forEach((li) => (li.style.opacity = "")) });
+    }
     requestAnimationFrame(frame);
   }
 
