@@ -55,6 +55,36 @@
     }
   }
 
+  /* ---------- passage: hover detail panel (desc + techstack) ---------- */
+  const passage = document.createElement("div");
+  passage.id = "passage";
+  $("#stage").appendChild(passage);
+  function populatePassage(i) {
+    const p = P[i];
+    passage.innerHTML =
+      `<div class="pg-head"><span class="pg-cat">${t(p.category)}</span>` +
+      `<span class="pg-nm">${p.name}</span></div>` +
+      `<p class="pg-desc">${t(p.desc)}</p>` +
+      `<div class="pg-stack">${p.stack.map((s) => `<span>${s}</span>`).join("")}</div>`;
+  }
+  let pfx = 0, pfy = 0, pw = 320, ph = 300;   // follow position + measured size
+  function passageTargetX(w) { return (cx + 26 + w > innerWidth - 16) ? cx - w - 26 : cx + 26; }
+  function showPassage(i) {
+    populatePassage(i);
+    passage.classList.add("show");
+    pw = passage.offsetWidth; ph = passage.offsetHeight;
+    pfx = passageTargetX(pw);
+    pfy = clamp(cy - ph / 2, 16, innerHeight - ph - 16);
+    passage.style.left = pfx + "px"; passage.style.top = pfy + "px";
+  }
+  function hidePassage() { passage.classList.remove("show"); }
+  preview.addEventListener("mouseenter", () => { if (state.view === "list") showPassage(state.active); });
+  preview.addEventListener("mouseleave", hidePassage);
+  cards.forEach((c, i) => {
+    c.addEventListener("mouseenter", () => showPassage(i));
+    c.addEventListener("mouseleave", hidePassage);
+  });
+
   /* ---------- marquee circular text ---------- */
   $("#marquee").innerHTML = `
     <svg viewBox="0 0 100 100">
@@ -71,7 +101,7 @@
     const p = P[i];
     const visit = p.url
       ? `<a class="visit pill" data-hover href="${p.url}" target="_blank" rel="noopener">
-           ${t(D.ui.visit)} <span class="d"></span></a>`
+           ${p.urlLabel} <span class="d"></span></a>`
       : "";
     label.innerHTML = `
       <div class="cat">${t(p.category)}</div>
@@ -90,6 +120,7 @@
     document.documentElement.style.setProperty("--accent", p.accent);
     setPreview(i);
     renderLabel(i);
+    if (passage.classList.contains("show") && state.view === "list") populatePassage(i);
     tick();
   }
 
@@ -179,6 +210,14 @@
     ring.style.transform = `translate(${ringX}px,${ringY}px)`;
     dot.style.transform = `translate(${cx}px,${cy}px)`;
 
+    // passage follows the cursor (to the side, vertically centered)
+    if (passage.classList.contains("show")) {
+      const tx = passageTargetX(pw);
+      const ty = clamp(cy - ph / 2, 16, innerHeight - ph - 16);
+      pfx = lerp(pfx, tx, 0.22); pfy = lerp(pfy, ty, 0.22);
+      passage.style.left = pfx + "px"; passage.style.top = pfy + "px";
+    }
+
     requestAnimationFrame(frame);
   }
 
@@ -189,6 +228,7 @@
   function setView(v) {
     if (v === state.view) return;
     state.view = v;
+    hidePassage();
     $$("#viewtoggle button").forEach((b) => b.classList.toggle("active", b.dataset.view === v));
     label.classList.toggle("spiralmode", v === "spiral");
     label.classList.toggle("listmode", v === "list");
@@ -228,6 +268,7 @@
      MENU
      ============================================================ */
   const menu = $("#menu");
+  menu.setAttribute("data-lenis-prevent", "");   // let the overlay scroll natively (Lenis ignores it)
   function buildMenu() {
     const nav = [
       ["works", () => scrollToProjects()],
@@ -244,6 +285,7 @@
     }).join("");
 
     menu.innerHTML = `
+      <button class="menu-close" data-hover data-close aria-label="Close menu"></button>
       <div class="menu-inner">
         <nav class="menu-nav">${navHTML}</nav>
 
@@ -359,7 +401,7 @@
 
   // menu nav → smooth scroll within overlay
   menu.addEventListener("click", (e) => {
-    if (e.target.closest("a[data-close]")) { e.preventDefault(); closeMenu(); return; }
+    if (e.target.closest("[data-close]")) { e.preventDefault(); closeMenu(); return; }
     const a = e.target.closest("a[href^='#m-']");
     if (!a) return;
     e.preventDefault();

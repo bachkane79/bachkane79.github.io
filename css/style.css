@@ -76,30 +76,29 @@ body.hovering #cursor .ring{width:64px;height:64px;background:rgba(255,255,255,.
 #menubtn{position:fixed;top:20px;left:20px;z-index:600;
   width:clamp(112px,12.5vw,182px);height:clamp(112px,12.5vw,182px);border-radius:50%;
   display:grid;place-items:center;overflow:visible;
-  background:radial-gradient(125% 125% at 30% 22%,rgba(255,77,151,.24),rgba(12,10,12,.62));
-  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
-  border:1.5px solid rgba(255,77,151,.5);
-  animation:glowpulse 4.2s ease-in-out infinite;
-  transition:transform .5s var(--ease),border-color .5s var(--ease)}
-#menubtn::before{content:"";position:absolute;left:-70%;top:-70%;width:280%;height:280%;z-index:-1;
-  border-radius:50%;pointer-events:none;filter:blur(26px);
-  background:radial-gradient(circle,rgba(255,77,151,.20),rgba(192,38,211,.10) 42%,transparent 66%)}
-#menubtn .mring{position:absolute;inset:7px;border-radius:50%;opacity:.95;
-  background:conic-gradient(from 0deg,#ff4d97,#c026d3,#2563ff,#22c55e,#ff5a1f,#ff4d97);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
-          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 3px));
-  animation:spin 9s linear infinite}
+  background:radial-gradient(125% 125% at 30% 22%,rgba(255,255,255,.10),rgba(14,14,16,.66));
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 30px rgba(255,255,255,.03);
+  transition:transform .5s var(--ease),border-color .5s var(--ease),box-shadow .5s var(--ease)}
+#menubtn::before{content:"";position:absolute;left:-55%;top:-55%;width:250%;height:250%;z-index:-1;
+  border-radius:50%;pointer-events:none;filter:blur(32px);opacity:.5;
+  background:conic-gradient(from 0deg,rgba(34,197,94,.18),rgba(37,99,255,.18),rgba(192,38,211,.18),rgba(255,90,31,.18),rgba(34,197,94,.18));
+  animation:spin 16s linear infinite}
+#menubtn .mring{position:absolute;inset:6px;border-radius:50%;opacity:.98;
+  background:conic-gradient(from 0deg,#22c55e,#2563ff,#c026d3,#ff5a1f,#ffd23f,#22c55e);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 11px),#000 calc(100% - 11px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 11px),#000 calc(100% - 11px));
+  filter:saturate(1.15);animation:spin 8s linear infinite}
 #menubtn .mcore{display:flex;align-items:center;gap:9px;position:relative}
 #menubtn .lbl{font-size:clamp(15px,1.5vw,20px);font-weight:600;letter-spacing:.005em;color:#fff}
-#menubtn .d{width:8px;height:8px;border-radius:50%;background:var(--pink);
-  box-shadow:0 0 14px var(--pink);transition:transform .5s var(--ease)}
-#menubtn:hover{transform:scale(1.07);border-color:rgba(255,77,151,.95)}
+#menubtn .d{width:8px;height:8px;border-radius:50%;background:#fff;
+  box-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .5s var(--ease)}
+#menubtn:hover{transform:scale(1.06);border-color:rgba(255,255,255,.5);
+  box-shadow:0 26px 78px rgba(0,0,0,.6),inset 0 0 30px rgba(255,255,255,.05)}
 #menubtn:hover .d{transform:scale(1.9)}
 body.menu-open #menubtn{border-color:#fff}
-body.menu-open #menubtn .mring{opacity:.55}
-@keyframes glowpulse{
-  0%,100%{box-shadow:0 18px 55px rgba(255,77,151,.16),inset 0 0 30px rgba(255,77,151,.07)}
-  50%{box-shadow:0 26px 78px rgba(255,77,151,.32),inset 0 0 42px rgba(255,77,151,.14)}}
+body.menu-open #menubtn .mring{opacity:.6}
 
 /* logo orb (top-right, back to top) */
 #logo{position:fixed;top:26px;right:34px;left:auto;width:44px;height:44px;z-index:110}
@@ -161,7 +160,7 @@ body.menu-open #menubtn .mring{opacity:.55}
 
 /* ===== LIST VIEW ===== */
 #list{position:absolute;inset:0;z-index:11;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;will-change:transform}
+  justify-content:center;will-change:transform;pointer-events:none}
 #list-track{display:flex;flex-direction:column;align-items:center;will-change:transform}
 .list-item{
   --gap:0;
@@ -189,7 +188,29 @@ body.menu-open #menubtn .mring{opacity:.55}
   background:linear-gradient(135deg,var(--accent),#0a0a0a);color:#fff;
   font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
 #preview .ph span{opacity:.85}
-#preview.show{opacity:1;clip-path:inset(0 0 0 0 round 14px)}
+#preview.show{opacity:1;clip-path:inset(0 0 0 0 round 14px);pointer-events:auto}
+
+/* hover detail passage — portrait card that follows the cursor */
+#passage{position:fixed;left:0;top:0;z-index:40;pointer-events:none;
+  width:clamp(268px,22vw,328px);
+  transform:translateX(-8px) scale(.97);transform-origin:left center;
+  padding:24px 26px 26px;border-radius:14px;overflow:hidden;
+  background:rgba(9,9,11,.86);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 40px 120px rgba(0,0,0,.62);
+  opacity:0;transition:opacity .35s var(--ease),transform .45s var(--ease)}
+#passage::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;
+  background:linear-gradient(90deg,#ff4d97,#ff5a1f,#ffd23f,#22c55e,#2563ff,#c026d3,#ff4d97);
+  background-size:200% 100%;animation:huebar 6s linear infinite}
+@keyframes huebar{to{background-position:200% 0}}
+#passage.show{opacity:1;transform:translateX(0) scale(1)}
+#passage .pg-head{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+#passage .pg-cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+#passage .pg-nm{font-size:clamp(20px,2.4vw,30px);font-weight:600;letter-spacing:-.02em}
+#passage .pg-desc{font-size:clamp(13px,1.15vw,15.5px);line-height:1.58;color:rgba(250,250,250,.82);margin-bottom:16px}
+#passage .pg-stack{display:flex;flex-wrap:wrap;gap:7px}
+#passage .pg-stack span{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;
+  padding:5px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.16);color:rgba(250,250,250,.86)}
 
 /* ===== SPIRAL VIEW ===== */
 #spiral{position:absolute;inset:0;perspective:1400px;
@@ -231,16 +252,30 @@ body.menu-open #menubtn .mring{opacity:.55}
     var(--bg);
   clip-path:inset(0 0 100% 0);pointer-events:none;overflow-y:auto;overflow-x:hidden}
 #menu.open{pointer-events:auto}
+.menu-close{position:fixed;top:clamp(20px,3vh,30px);right:clamp(20px,3vw,42px);z-index:20;
+  width:54px;height:54px;border-radius:50%;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.05);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  display:grid;place-items:center;
+  transition:transform .45s var(--ease),background .4s,border-color .4s}
+.menu-close::before,.menu-close::after{content:"";position:absolute;width:20px;height:1.6px;
+  background:#fff;border-radius:2px}
+.menu-close::before{transform:rotate(45deg)}
+.menu-close::after{transform:rotate(-45deg)}
+.menu-close:hover{transform:rotate(90deg) scale(1.08);background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.55)}
 .menu-inner{min-height:100%;padding:clamp(150px,21vh,238px) clamp(20px,5vw,64px) 90px;
   max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(56px,8vh,96px)}
 
-/* airy floating nav */
-.menu-nav{display:flex;flex-direction:column;gap:4px}
-.menu-nav a{position:relative;display:flex;align-items:baseline;gap:clamp(14px,2vw,30px);
-  padding:clamp(6px,1vh,14px) clamp(18px,2.4vw,34px);border-radius:26px;
-  font-size:clamp(34px,6.6vw,88px);font-weight:600;letter-spacing:-.03em;line-height:1.02;
+/* zig-zag floating nav — alternating left / right, tightly packed */
+.menu-nav{display:flex;flex-direction:column;gap:clamp(0px,.4vh,6px)}
+.menu-nav a{position:relative;display:flex;align-items:baseline;gap:clamp(12px,1.6vw,24px);
+  width:fit-content;max-width:100%;
+  padding:clamp(2px,.5vh,8px) clamp(16px,2.2vw,30px);border-radius:26px;
+  font-size:clamp(34px,6.8vw,92px);font-weight:600;letter-spacing:-.03em;line-height:.96;
   color:var(--dim2);
   transition:color .4s var(--ease),background .5s var(--ease),transform .55s var(--ease),box-shadow .55s var(--ease)}
+.menu-nav a:nth-child(odd){align-self:flex-start}
+.menu-nav a:nth-child(even){align-self:flex-end}
 .menu-nav a .mn-num{font-family:var(--mono);font-size:13px;font-weight:400;letter-spacing:.06em;
   color:var(--pink);opacity:.55;align-self:flex-start;margin-top:.55em;transition:opacity .4s}
 .menu-nav a .mn-txt{position:relative}
@@ -252,6 +287,8 @@ body.menu-open #menubtn .mring{opacity:.55}
 .menu-nav a:hover{color:#fff;transform:translateX(clamp(10px,1.6vw,26px)) translateY(-2px);
   background:linear-gradient(90deg,rgba(255,77,151,.16),rgba(255,77,151,.02) 60%,transparent);
   box-shadow:0 26px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,77,151,.14) inset}
+.menu-nav a:nth-child(even):hover{transform:translateX(calc(-1 * clamp(10px,1.6vw,26px))) translateY(-2px);
+  background:linear-gradient(270deg,rgba(255,77,151,.16),rgba(255,77,151,.02) 60%,transparent)}
 .menu-nav a:hover .mn-num{opacity:1}
 .menu-nav a:hover .mn-txt::after{transform:scaleX(1)}
 .menu-nav a:hover .mn-arrow{opacity:1;transform:translateX(0)}
@@ -298,6 +335,7 @@ body.menu-open #menubtn .mring{opacity:.55}
   .about-grid{grid-template-columns:1fr;gap:28px}
   .skills-list{grid-template-columns:1fr}
   #preview{width:78vw}
+  #passage{width:min(78vw,300px);padding:20px 22px 22px}
   #marquee{width:74px;height:74px}
   #rail{display:none}
   #botcenter{display:none}
